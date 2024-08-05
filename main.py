@@ -49,7 +49,7 @@ class CombinedCycleGasTurbine:
     _DEF_N_C_STEAM = 0.85
     _DEF_N_T_STEAM = 0.8
     _DEF_HRSG_F = 1.0
-    _DEF_HRSG_UA = 7575953.50
+    _DEF_HRSG_UA = 7.5759535e6
 
     def attrs_from_kwargs_or_default(self, **kwargs: dict) -> None:
         """
@@ -94,26 +94,29 @@ class CombinedCycleGasTurbine:
         9. Gas cycle HRSG outlet
 
         ### Arguments
-        #### Optional
-        - `gas_fluid` (str, default = "air"): the gas fluid used in the gas turbine
-        - `steam_fluid` (str, default = "water"): the steam fluid used in the steam turbine
+        #### Operating points
         - `p_5` (float, default = 101325): the pressure at point 5 (gas cycle compressor inlet), in Pa
         - `T_5` (float, default = 293.15): the temperature at point 5 (gas cycle compressor inlet), in K
-        - `r_p_comp` (float, default = 23): the pressure ratio of the gas cycle compressor
-        - `n_c_gas` (float, default = 0.85): the isentropic efficiency of the gas cycle compressor
-        - `m_dot_gas` (float, default = 1.0559e3): the mass flow rate in the gas cycle, in kg/s
-        - `Q_67` (float, default = 1.0453e9): the heat input in the gas cycle combustor, in W
-        - `r_p_turb` (float, default = 20.9186): the pressure ratio of the gas cycle turbine
-        - `n_t_gas` (float, default = 0.85): the isentropic efficiency of the gas cycle turbine
-        - `hrsg_f` (float, default = 1.0): the F-factor of the HRSG heat exchanger
-        - `hrsg_ua` (float, default = 7575953.50): the overall heat transfer coefficient 
-        times surface area of the HRSG, in W/K
-        - `m_dot_steam` (float, default = 150.3): the mass flow rate in the steam cycle, in kg/s
-        - `r_p_pump` (float, default = 1000): the pressure ratio of the steam cycle pump
         - `p_1` (float, default = 0.04 * 101325): the pressure at point 1 (steam cycle pump inlet), in Pa
         - `T_1` (float, default = 280): the temperature at point 1 (steam cycle pump inlet), in K
+        #### Fluids
+        - `gas_fluid` (str, default = "air"): the gas fluid used in the gas turbine
+        - `m_dot_gas` (float, default = 1.0559e3): the mass flow rate in the gas cycle, in kg/s
+        - `steam_fluid` (str, default = "water"): the steam fluid used in the steam turbine
+        - `m_dot_steam` (float, default = 150.3): the mass flow rate in the steam cycle, in kg/s
+        #### Heat input source
+        - `Q_67` (float, default = 1.0453e9): the heat input in the gas cycle combustor, in W
+        #### Component properties
+        - `r_p_comp` (float, default = 23): the pressure ratio of the gas cycle compressor
+        - `r_p_turb` (float, default = 20.9186): the pressure ratio of the gas cycle turbine
+        - `r_p_pump` (float, default = 1000): the pressure ratio of the steam cycle pump
+        - `n_c_gas` (float, default = 0.85): the isentropic efficiency of the gas cycle compressor
+        - `n_t_gas` (float, default = 0.85): the isentropic efficiency of the gas cycle turbine
         - `n_c_steam` (float, default = 0.85): the isentropic efficiency of the steam cycle pump
         - `n_t_steam` (float, default = 0.8): the isentropic efficiency of the steam cycle turbine
+        - `hrsg_f` (float, default = 1.0): the F-factor of the HRSG heat exchanger
+        - `hrsg_ua` (float, default = 7.5759535e6): the overall heat transfer coefficient
+        times surface area of the HRSG, in W/K
         """
         self.attrs_from_kwargs_or_default(**kwargs)
 
@@ -187,31 +190,26 @@ class CombinedCycleGasTurbine:
         self.x_2 = PropsSI("Q", "P", self.p_2, "H", self.h_2, self.steam_fluid)
         self.ex_2 = self.specific_exergy_at_point(2)
 
-        # calculations for the HRSG now requires solving a system of five nonlinear equations
-        # can we use scipy.optimize.fsolve ?
-        # unknowns: Q_23, T_3, T_9, h_3, h_9
+        # calculations for the HRSG requires solving a system of three nonlinear equations
+        # unknowns: Q_23, T_3, T_9
         # Equation 1: Q_23 = self.hrsg_f * self.hrsg_ua * ((self.T_8 - T_3) - (T_9 - self.T_2)) / np.log((self.T_8 - T_3) / (T_9 - self.T_2))
-        # Equation 2: h_9 = self.h_8 - Q_23 / self.m_dot_gas
-        # Equation 3: h_3 = self.h_2 + Q_23 / self.m_dot_steam
-        # Equation 4: h_3 = PropsSI("H", "P", self.p_2, "T", T_3, self.steam_fluid)
-        # Equation 5: h_9 = PropsSI("H", "P", self.p_8, "T", T_9, self.gas_fluid)
+        # Equation 2: h_9 = h_gas(p = self.p_8, T = T_9) = h_8 - Q_23 / self.m_dot_gas
+        # Equation 3: h_3 = h_steam(p = self.p_2, T = T_3) = h_2 + Q_23 / self.m_dot_steam
+        # NOTE: this could be reduced to a single equation in theory,
+        # but the solver became unstable when I tried it
         def hrsg_equations(vars):
-            Q_23, T_3, T_9, h_3, h_9 = vars
-            eq1 = Q_23 - self.hrsg_f * self.hrsg_ua * (
-                (self.T_8 - T_3) - (T_9 - self.T_2)
-            ) / np.log((self.T_8 - T_3) / (T_9 - self.T_2))
-            eq2 = h_9 - self.h_8 + Q_23 / self.m_dot_gas
-            eq3 = h_3 - self.h_2 - Q_23 / self.m_dot_steam
-            eq4 = h_3 - PropsSI("H", "P", self.p_2, "T", T_3, self.steam_fluid)
-            eq5 = h_9 - PropsSI("H", "P", self.p_8, "T", T_9, self.gas_fluid)
-            return [eq1, eq2, eq3, eq4, eq5]
+            Q_23, T_3, T_9 = vars
+            eq1 = Q_23 - self.hrsg_f * self.hrsg_ua * ((self.T_8 - T_3) - (T_9 - self.T_2)) / np.log((self.T_8 - T_3) / (T_9 - self.T_2))
+            eq2 = PropsSI("H", "P", self.p_8, "T", T_9, self.gas_fluid) - self.h_8 + Q_23 / self.m_dot_gas
+            eq3 = PropsSI("H", "P", self.p_2, "T", T_3, self.steam_fluid) - self.h_2 - Q_23 / self.m_dot_steam
+            return [eq1, eq2, eq3]
         
-        initial_guess = [self.m_dot_gas * (self.h_8 - self.h_5), self.T_2 * 2, (self.T_5 + self.T_8) / 2, 
-                         self.h_2 + (self.m_dot_gas / self.m_dot_steam) * (self.h_8 - self.h_5), 
-                         self.h_8 - (self.m_dot_gas / self.m_dot_steam) * (self.h_8 - self.h_5)]
-        self.Q_23, self.T_3, self.T_9, self.h_3, self.h_9 = fsolve(hrsg_equations, initial_guess, xtol=1e-6)
+        initial_guess = [self.m_dot_gas * (self.h_8 - self.h_5) * 3/4, 
+                         self.T_2 * 5/2, self.T_5 * 3/4 + self.T_8 * 1/4]
+        self.Q_23, self.T_3, self.T_9 = fsolve(hrsg_equations, initial_guess, xtol=1e-6)
+        self.h_3 = self.h_2 + self.Q_23 / self.m_dot_steam
+        self.h_9 = self.h_8 - self.Q_23 / self.m_dot_gas
 
-        # calculate HRSG steam side outlet conditions
         self.p_3 = self.p_2
         self.s_3 = PropsSI("S", "P", self.p_3, "T", self.T_3, self.steam_fluid)
         self.x_3 = PropsSI("Q", "P", self.p_3, "T", self.T_3, self.steam_fluid)
