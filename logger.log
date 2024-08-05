@@ -280,3 +280,22 @@
 2024-08-05 16:21:04,987 INFO: Setting attribute n_t_steam to default value 0.8
 2024-08-05 16:21:07,877 WARNING: findfont: Font family ['cursive'] not found. Falling back to DejaVu Sans.
 2024-08-05 16:21:07,878 WARNING: findfont: Generic family 'cursive' not found because none of the following families were found: TeX Gyre Chorus, Apple Chancery, Felipa, Sand, Script MT, Textile, Zapf Chancery, cursive
+2024-08-05 16:29:27,653 INFO: Setting attribute gas_fluid to default value air
+2024-08-05 16:29:27,654 INFO: Setting attribute steam_fluid to default value water
+2024-08-05 16:29:27,654 INFO: Setting attribute p_5 to default value 101325
+2024-08-05 16:29:27,654 INFO: Setting attribute T_5 to default value 298.15
+2024-08-05 16:29:27,654 INFO: Setting attribute r_p_comp to default value 23
+2024-08-05 16:29:27,654 INFO: Setting attribute n_c_gas to default value 0.85
+2024-08-05 16:29:27,654 INFO: Setting attribute m_dot_gas to default value 1055.9
+2024-08-05 16:29:27,654 INFO: Setting attribute Q_67 to default value 1045300000.0
+2024-08-05 16:29:27,654 INFO: Setting attribute r_p_turb to default value 20.9186
+2024-08-05 16:29:27,654 INFO: Setting attribute n_t_gas to default value 0.85
+2024-08-05 16:29:27,654 INFO: Setting attribute T_3 to default value 873
+2024-08-05 16:29:27,654 INFO: Setting attribute m_dot_steam to default value 150.3
+2024-08-05 16:29:27,654 INFO: Setting attribute p_1 to default value 4053.0
+2024-08-05 16:29:27,654 INFO: Setting attribute r_p_pump to default value 1000
+2024-08-05 16:29:27,654 INFO: Setting attribute n_c_steam to default value 0.85
+2024-08-05 16:29:27,654 INFO: Setting attribute T_1 to default value 297.9
+2024-08-05 16:29:27,654 INFO: Setting attribute n_t_steam to default value 0.8
+2024-08-05 16:29:39,097 WARNING: findfont: Font family ['cursive'] not found. Falling back to DejaVu Sans.
+2024-08-05 16:29:39,097 WARNING: findfont: Generic family 'cursive' not found because none of the following families were found: TeX Gyre Chorus, Apple Chancery, Felipa, Sand, Script MT, Textile, Zapf Chancery, cursive

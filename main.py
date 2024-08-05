@@ -484,7 +484,7 @@ class CombinedCycleGasTurbine:
             PropsSI("T", "P", self.p_1, "S", s_range_steam, self.steam_fluid),
             "green",
             alpha=0.25,
-            label="Isentropic Process",
+            label="Isobars",
         )
         ax2.plot(
             s_range_steam,
