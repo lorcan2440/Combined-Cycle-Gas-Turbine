@@ -262,6 +262,7 @@ class CombinedCycleGasTurbine:
         - `W_56_loss`: exergy destruction rate in gas compressor, in W
         - `W_78_loss`: exergy destruction rate in gas turbine, in W
         - `hrsg_loss`: exergy destruction rate in HRSG, in W
+        - `Ex_23`: exergy created in steam side of HRSG, in W
         - `gas_exhaust_loss`: exergy rejected from gas exhaust, in W
         - `W_12_loss`: exergy destruction rate in steam pump, in W
         - `W_34_loss`: exergy destruction rate in steam turbine, in W
@@ -269,9 +270,13 @@ class CombinedCycleGasTurbine:
         #### Efficiency
         - `eta_gas_th`: thermal efficiency of gas cycle
         - `eta_steam_th`: thermal efficiency of steam cycle
-        - `eta_th`: overall CCGT thermal efficiency
-        - `eta_ex`: exergy efficiency of CCGT
-        - `eta_th_max`: maximum possible thermal efficiency of CCGT
+        - `eta_th`: overall thermal efficiency of CCGT
+        - `eta_gas_th_max`: maximum possible thermal efficiency of gas cycle
+        - `eta_steam_th_max`: maximum possible thermal efficiency of steam cycle
+        - `eta_th_max`: overall maximum possible thermal efficiency of CCGT
+        - `eta_gas_ex`: exergy efficiency of gas cycle
+        - `eta_steam_ex`: exergy efficiency of steam cycle
+        - `eta_ex`: overall exergy efficiency of CCGT
         '''        
 
         # actual energy balance
@@ -294,14 +299,8 @@ class CombinedCycleGasTurbine:
         self.Ex_67 = self.m_dot_gas * (self.ex_7 - self.ex_6)
         # steam condenser exergy output
         self.Ex_14 = self.m_dot_steam * (self.ex_4 - self.ex_1)
-
-        # efficiencies
-        self.eta_gas_th = self.W_gas / self.Q_67
-        self.eta_steam_th = self.W_steam / self.Q_23
-        self.eta_th = self.W_total / self.Q_67
-
-        self.eta_ex = self.W_total / self.Ex_67
-        self.eta_th_max = self.Ex_67 / self.Q_67
+        # hrsg steam exergy input
+        self.Ex_23 = self.m_dot_steam * (self.ex_3 - self.ex_2)
 
         # losses of available power
         # gas compressor
@@ -321,6 +320,20 @@ class CombinedCycleGasTurbine:
         self.W_12_loss = self.m_dot_steam * 298 * (self.s_2 - self.s_1)
         # steam turbine
         self.W_34_loss = self.m_dot_steam * 298 * (self.s_4 - self.s_3)
+
+        # efficiencies
+        # thermal efficiency = net power out / heat in
+        self.eta_gas_th = self.W_gas / self.Q_67
+        self.eta_steam_th = self.W_steam / self.Q_23
+        self.eta_th = self.W_total / self.Q_67
+        # maximum possible thermal efficiency = exergy in / heat in
+        self.eta_gas_th_max = self.Ex_67 / self.Q_67
+        self.eta_steam_th_max = self.Ex_23 / self.Q_23
+        self.eta_th_max = self.Ex_67 / self.Q_67
+        # exergy efficiency = net power out / exergy in
+        self.eta_gas_ex = self.W_gas / self.Ex_67
+        self.eta_steam_ex = self.W_steam / self.Ex_23
+        self.eta_ex = self.W_total / self.Ex_67
 
         fig, (ax1, ax2) = plt.subplots(
             1, 2, figsize=(12, 6), subplot_kw=dict(aspect="equal")
@@ -680,11 +693,15 @@ class CombinedCycleGasTurbine:
                 f"\tHRSG heat transfer: {self.Q_23 / 1e6 :.2f} MW\n"
                 f"\tTurbine power output: {self.W_34 / 1e6 :.2f} MW\n"
                 f"Efficiencies: \n"
-                f"\tGas turbine thermal efficiency: {self.eta_gas_th :.2%}\n"
-                f"\tSteam turbine thermal efficiency: {self.eta_steam_th :.2%}\n"
-                f"\tOverall thermal efficiency: {self.eta_th :.2%}\n"
-                f"\tMaximum possible thermal efficiency: {self.eta_th_max :.2%}\n"
-                f"\tOverall exergy efficiency: {self.eta_ex :.2%}\n"
+                f"\tThermal efficiency, gas cycle: {self.eta_gas_th :.2%}\n"
+                f"\tThermal efficiency, steam cycle: {self.eta_steam_th :.2%}\n"
+                f"\tThermal efficiency, overall: {self.eta_th :.2%}\n"
+                f"\tMaximum thermal efficiency, gas cycle: {self.eta_gas_th_max :.2%}\n"
+                f"\tMaximum thermal efficiency, steam cycle: {self.eta_steam_th_max :.2%}\n"
+                f"\tMaximum thermal efficiency, overall: {self.eta_th_max :.2%}\n"
+                f"\tExergy efficiency, gas cycle: {self.eta_gas_ex :.2%}\n"
+                f"\tExergy efficiency, steam cycle: {self.eta_steam_ex :.2%}\n"
+                f"\tExergy efficiency, overall: {self.eta_ex :.2%}\n"
             )
         except AttributeError:
             return "Model has not been computed yet. Run `calc_states()` and `calc_energy_exergy_balances()` first."
