@@ -3,6 +3,7 @@ import numpy as np
 import CoolProp as CP
 from CoolProp.CoolProp import PropsSI
 from CoolPlot.Plot import PropertyPlot
+from scipy.optimize import fsolve
 
 import warnings
 import re
@@ -26,23 +27,29 @@ class CombinedCycleGasTurbine:
     # default constants - can be overridden by passing with kwargs
     # pass with lower case letters - e.g. {p_5: 1.1e5}
     # except for temperature and heat input - e.g. {T_5: 300, Q_67: 1e9}
-    _DEF_GAS_FLUID = "air"
-    _DEF_STEAM_FLUID = "water"
+
+    # operating points
     _DEF_P_5 = 101325
-    _DEF_T_5 = 298.15
-    _DEF_R_P_COMP = 23
-    _DEF_N_C_GAS = 0.85
-    _DEF_M_DOT_GAS = 1.0559e3
-    _DEF_Q_67 = 1.0453e9
-    _DEF_R_P_TURB = 20.9186
-    _DEF_N_T_GAS = 0.85
-    _DEF_T_3 = 873
-    _DEF_M_DOT_STEAM = 150.3
+    _DEF_T_5 = 298.
     _DEF_P_1 = 0.04 * 101325
-    _DEF_R_P_PUMP = 1000
-    _DEF_N_C_STEAM = 0.85
     _DEF_T_1 = 297.9
+    # fluids
+    _DEF_GAS_FLUID = "air"
+    _DEF_M_DOT_GAS = 1.0559e3
+    _DEF_STEAM_FLUID = "water"
+    _DEF_M_DOT_STEAM = 150.3
+    # heat input source
+    _DEF_Q_67 = 1.0453e9
+    # component properties
+    _DEF_R_P_COMP = 23
+    _DEF_R_P_TURB = 20.9186
+    _DEF_R_P_PUMP = 1000
+    _DEF_N_C_GAS = 0.85
+    _DEF_N_T_GAS = 0.85
+    _DEF_N_C_STEAM = 0.85
     _DEF_N_T_STEAM = 0.8
+    _DEF_HRSG_F = 1.0
+    _DEF_HRSG_UA = 7575953.50
 
     def attrs_from_kwargs_or_default(self, **kwargs: dict) -> None:
         """
@@ -98,12 +105,14 @@ class CombinedCycleGasTurbine:
         - `Q_67` (float, default = 1.0453e9): the heat input in the gas cycle combustor, in W
         - `r_p_turb` (float, default = 20.9186): the pressure ratio of the gas cycle turbine
         - `n_t_gas` (float, default = 0.85): the isentropic efficiency of the gas cycle turbine
-        - `T_3` (float, default = 873): the temperature at point 3 (steam cycle turbine inlet), in K
+        - `hrsg_f` (float, default = 1.0): the F-factor of the HRSG heat exchanger
+        - `hrsg_ua` (float, default = 7575953.50): the overall heat transfer coefficient 
+        times surface area of the HRSG, in W/K
         - `m_dot_steam` (float, default = 150.3): the mass flow rate in the steam cycle, in kg/s
-        - `p_1` (float, default = 0.04 * 101325): the pressure at point 1 (steam cycle pump inlet), in Pa
         - `r_p_pump` (float, default = 1000): the pressure ratio of the steam cycle pump
-        - `n_c_steam` (float, default = 0.85): the isentropic efficiency of the steam cycle pump
+        - `p_1` (float, default = 0.04 * 101325): the pressure at point 1 (steam cycle pump inlet), in Pa
         - `T_1` (float, default = 280): the temperature at point 1 (steam cycle pump inlet), in K
+        - `n_c_steam` (float, default = 0.85): the isentropic efficiency of the steam cycle pump
         - `n_t_steam` (float, default = 0.8): the isentropic efficiency of the steam cycle turbine
         """
         self.attrs_from_kwargs_or_default(**kwargs)
@@ -178,16 +187,36 @@ class CombinedCycleGasTurbine:
         self.x_2 = PropsSI("Q", "P", self.p_2, "H", self.h_2, self.steam_fluid)
         self.ex_2 = self.specific_exergy_at_point(2)
 
+        # calculations for the HRSG now requires solving a system of five nonlinear equations
+        # can we use scipy.optimize.fsolve ?
+        # unknowns: Q_23, T_3, T_9, h_3, h_9
+        # Equation 1: Q_23 = self.hrsg_f * self.hrsg_ua * ((self.T_8 - T_3) - (T_9 - self.T_2)) / np.log((self.T_8 - T_3) / (T_9 - self.T_2))
+        # Equation 2: h_9 = self.h_8 - Q_23 / self.m_dot_gas
+        # Equation 3: h_3 = self.h_2 + Q_23 / self.m_dot_steam
+        # Equation 4: h_3 = PropsSI("H", "P", self.p_2, "T", T_3, self.steam_fluid)
+        # Equation 5: h_9 = PropsSI("H", "P", self.p_8, "T", T_9, self.gas_fluid)
+        def hrsg_equations(vars):
+            Q_23, T_3, T_9, h_3, h_9 = vars
+            eq1 = Q_23 - self.hrsg_f * self.hrsg_ua * (
+                (self.T_8 - T_3) - (T_9 - self.T_2)
+            ) / np.log((self.T_8 - T_3) / (T_9 - self.T_2))
+            eq2 = h_9 - self.h_8 + Q_23 / self.m_dot_gas
+            eq3 = h_3 - self.h_2 - Q_23 / self.m_dot_steam
+            eq4 = h_3 - PropsSI("H", "P", self.p_2, "T", T_3, self.steam_fluid)
+            eq5 = h_9 - PropsSI("H", "P", self.p_8, "T", T_9, self.gas_fluid)
+            return [eq1, eq2, eq3, eq4, eq5]
+        
+        initial_guess = [self.m_dot_gas * (self.h_8 - self.h_5), self.T_2 * 2, (self.T_5 + self.T_8) / 2, 
+                         self.h_2 + (self.m_dot_gas / self.m_dot_steam) * (self.h_8 - self.h_5), 
+                         self.h_8 - (self.m_dot_gas / self.m_dot_steam) * (self.h_8 - self.h_5)]
+        self.Q_23, self.T_3, self.T_9, self.h_3, self.h_9 = fsolve(hrsg_equations, initial_guess, xtol=1e-6)
+
         # calculate HRSG steam side outlet conditions
         self.p_3 = self.p_2
-        self.h_3 = PropsSI("H", "P", self.p_3, "T", self.T_3, self.steam_fluid)
         self.s_3 = PropsSI("S", "P", self.p_3, "T", self.T_3, self.steam_fluid)
         self.x_3 = PropsSI("Q", "P", self.p_3, "T", self.T_3, self.steam_fluid)
         self.ex_3 = self.specific_exergy_at_point(3)
-        self.Q_23 = self.m_dot_steam * (self.h_3 - self.h_2)
         self.Q_89 = -1 * self.Q_23
-        self.h_9 = self.h_8 - self.Q_23 / self.m_dot_gas
-        self.T_9 = PropsSI("T", "P", self.p_8, "H", self.h_9, self.gas_fluid)
         self.s_9 = PropsSI("S", "P", self.p_8, "H", self.h_9, self.gas_fluid)
         self.ex_9 = self.specific_exergy_at_point(9)
 

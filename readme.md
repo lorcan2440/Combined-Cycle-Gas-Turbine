@@ -20,11 +20,11 @@ Done:
 - [x] Solve all states and properties of CCGT
 - [x] Compute efficiencies and show energy and exergy balances
 - [x] Show the system on a T-s diagram
+- [x] Calculate from the F-factor and overall heat transfer coefficient of the HRSG
 
 To do:
 
-- [ ] Show the T-x diagram of the heat exchanger, compute pinch point
-- [ ] Calculate the F-factor, LMTD and overall heat transfer coefficient of the HRSG
+- [ ] Show the T-x diagram of the heat exchanger, compute pinch point, compute effectiveness
 - [ ] Warn the user if the turbine temperatures are too high (risks blade creep), or if condenser pressure is too low (risks ice formation), or if the steam turbine wetness is too high (risks blade erosion)
 - [ ] Account for fuel in the gas cycle, model the combustion accurately
 - [ ] Show the energy and exergy flows as a Sankey diagram instead of a pie chart
