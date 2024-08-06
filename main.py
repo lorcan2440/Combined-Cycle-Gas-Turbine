@@ -58,29 +58,6 @@ class CombinedCycleGasTurbine:
     _DEF_MAX_P_HRSG_STEAM = 200 * 101325  # maximum steam pressure in HRSG
     _DEF_MIN_P_COND = 0.0061 * 101325  # minimum condenser pressure
 
-    def attrs_from_kwargs_or_default(self, **kwargs: dict) -> None:
-        """
-        Populate the attributes of the class, taking values from the kwargs dictionary,
-        or using the default values defined in the class if keys are unspecified.
-
-        ### Arguments
-        #### Optional
-        - `kwargs` (dict, default = {}): dictionary of {attribute name: attribute value} to set
-        """
-
-        def_items = self.__class__.__dict__.items()
-        def_items = filter(lambda item: item[0].startswith("_DEF_"), def_items)
-        for default_key, default_value in def_items:
-            key = default_key.removeprefix("_DEF_")
-            # T_n and Q_mn are not converted to lowercase
-            key = (key if re.match(r"(T|Q)_\d+", key) else key.lower())
-            if key in kwargs:
-                logging.info(f"Setting attribute {key} to specified value {kwargs[key]}")
-                setattr(self, key, kwargs[key])
-            else:
-                logging.info(f"Setting attribute {key} to default value {default_value}")
-                setattr(self, key, default_value)
-
     def __init__(self, **kwargs):
         """
         A Combined Cycle Gas Turbine model, featuring an air-standard Brayton cycle with isobaric combustor,
@@ -131,7 +108,18 @@ class CombinedCycleGasTurbine:
         - `max_p_hrsg_steam` (float, default = 200 * 101325): the maximum steam pressure in the HRSG, in Pa
         - `min_p_cond` (float, default = 0.0061 * 101325): the minimum condenser pressure, in Pa
         """
-        self.attrs_from_kwargs_or_default(**kwargs)
+        def_items = self.__class__.__dict__.items()
+        def_items = filter(lambda item: item[0].startswith("_DEF_"), def_items)
+        for default_key, default_value in def_items:
+            key = default_key.removeprefix("_DEF_")
+            # T_n and Q_mn are not converted to lowercase
+            key = (key if re.match(r"(T|Q)_\d+", key) else key.lower())
+            if key in kwargs:
+                logging.info(f"Setting attribute {key} to specified value {kwargs[key]}")
+                setattr(self, key, kwargs[key])
+            else:
+                logging.info(f"Setting attribute {key} to default value {default_value}")
+                setattr(self, key, default_value)
 
     def calc_states(self):
         """
