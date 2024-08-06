@@ -127,6 +127,9 @@ class CombinedCycleGasTurbine:
         #### Process limits
         - `max_T7` (float, default = 1873): the maximum gas turbine inlet temperature, in K
         - `max_T3` (float, default = 893): the maximum steam turbine inlet temperature, in K
+        - `min_x4` (float, default = 0.90): the minimum dryness fraction at the steam turbine outlet
+        - `max_p_hrsg_steam` (float, default = 200 * 101325): the maximum steam pressure in the HRSG, in Pa
+        - `min_p_cond` (float, default = 0.0061 * 101325): the minimum condenser pressure, in Pa
         """
         self.attrs_from_kwargs_or_default(**kwargs)
 
