@@ -21,12 +21,12 @@ Done:
 - [x] Compute efficiencies and show energy and exergy balances
 - [x] Show the system on a T-s diagram
 - [x] Calculate from the F-factor and overall heat transfer coefficient of the HRSG
-- [x] Show the T-x diagram of the heat exchanger, compute pinch point, compute effectiveness
+- [x] Show the T-X diagram of the heat exchanger, compute pinch point
+- [x] Warn the user about turbine inlet temperatures, supercritical states, 
+  sub-triple point states, wet steam turbine outlets.
 
 To do:
 
-- [ ] Warn the user about turbine inlet temperatures, supercritical states, 
-- sub-triple point states, wet steam turbine outlets.
 - [ ] Account for fuel in the gas cycle, model the combustion accurately
 - [ ] Show the energy and exergy flows as a Sankey diagram instead of a pie chart
 - [ ] Add reheat stages in the gas and/or steam cycle
