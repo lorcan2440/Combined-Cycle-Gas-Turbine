@@ -1889,3 +1889,103 @@
 2024-08-06 02:22:00,724 INFO: Setting attribute min_p_cond to default value 618.0825000000001
 2024-08-06 02:22:03,094 WARNING: findfont: Font family ['cursive'] not found. Falling back to DejaVu Sans.
 2024-08-06 02:22:03,094 WARNING: findfont: Generic family 'cursive' not found because none of the following families were found: TeX Gyre Chorus, Apple Chancery, Felipa, Sand, Script MT, Textile, Zapf Chancery, cursive
+2024-08-06 11:21:03,819 INFO: Setting attribute p_5 to default value 101325
+2024-08-06 11:21:03,819 INFO: Setting attribute T_5 to default value 293.15
+2024-08-06 11:21:03,819 INFO: Setting attribute p_1 to default value 4053.0
+2024-08-06 11:21:03,819 INFO: Setting attribute T_1 to default value 297.9
+2024-08-06 11:21:03,819 INFO: Setting attribute gas_fluid to default value air
+2024-08-06 11:21:03,820 INFO: Setting attribute m_dot_gas to default value 1055.9
+2024-08-06 11:21:03,820 INFO: Setting attribute steam_fluid to default value water
+2024-08-06 11:21:03,820 INFO: Setting attribute m_dot_steam to default value 150.3
+2024-08-06 11:21:03,820 INFO: Setting attribute Q_67 to default value 1045300000.0
+2024-08-06 11:21:03,820 INFO: Setting attribute r_p_comp to default value 23
+2024-08-06 11:21:03,820 INFO: Setting attribute r_p_turb to default value 20.9186
+2024-08-06 11:21:03,820 INFO: Setting attribute r_p_pump to default value 1000
+2024-08-06 11:21:03,820 INFO: Setting attribute n_c_gas to default value 0.85
+2024-08-06 11:21:03,820 INFO: Setting attribute n_t_gas to default value 0.85
+2024-08-06 11:21:03,820 INFO: Setting attribute n_c_steam to default value 0.85
+2024-08-06 11:21:03,820 INFO: Setting attribute n_t_steam to default value 0.85
+2024-08-06 11:21:03,820 INFO: Setting attribute hrsg_f to default value 1.0
+2024-08-06 11:21:03,820 INFO: Setting attribute hrsg_ua to default value 5000000.0
+2024-08-06 11:21:03,820 INFO: Setting attribute max_t7 to default value 1873
+2024-08-06 11:21:03,820 INFO: Setting attribute max_t3 to default value 893
+2024-08-06 11:21:03,820 INFO: Setting attribute min_x4 to default value 0.9
+2024-08-06 11:21:03,820 INFO: Setting attribute max_p_hrsg_steam to default value 20265000
+2024-08-06 11:21:03,820 INFO: Setting attribute min_p_cond to default value 618.0825000000001
+2024-08-06 11:21:07,154 WARNING: findfont: Font family ['cursive'] not found. Falling back to DejaVu Sans.
+2024-08-06 11:21:07,154 WARNING: findfont: Generic family 'cursive' not found because none of the following families were found: TeX Gyre Chorus, Apple Chancery, Felipa, Sand, Script MT, Textile, Zapf Chancery, cursive
+2024-08-06 11:26:41,502 INFO: Setting attribute p_5 to default value 101325
+2024-08-06 11:26:41,503 INFO: Setting attribute T_5 to default value 293.15
+2024-08-06 11:26:41,503 INFO: Setting attribute p_1 to default value 4053.0
+2024-08-06 11:26:41,503 INFO: Setting attribute T_1 to default value 297.9
+2024-08-06 11:26:41,503 INFO: Setting attribute gas_fluid to default value air
+2024-08-06 11:26:41,503 INFO: Setting attribute m_dot_gas to default value 1055.9
+2024-08-06 11:26:41,503 INFO: Setting attribute steam_fluid to default value water
+2024-08-06 11:26:41,503 INFO: Setting attribute m_dot_steam to default value 150.3
+2024-08-06 11:26:41,503 INFO: Setting attribute Q_67 to default value 1045300000.0
+2024-08-06 11:26:41,503 INFO: Setting attribute r_p_comp to default value 23
+2024-08-06 11:26:41,503 INFO: Setting attribute r_p_turb to default value 20.9186
+2024-08-06 11:26:41,503 INFO: Setting attribute r_p_pump to default value 1000
+2024-08-06 11:26:41,503 INFO: Setting attribute n_c_gas to default value 0.85
+2024-08-06 11:26:41,503 INFO: Setting attribute n_t_gas to default value 0.85
+2024-08-06 11:26:41,503 INFO: Setting attribute n_c_steam to default value 0.85
+2024-08-06 11:26:41,503 INFO: Setting attribute n_t_steam to default value 0.85
+2024-08-06 11:26:41,503 INFO: Setting attribute hrsg_f to default value 1.0
+2024-08-06 11:26:41,503 INFO: Setting attribute hrsg_ua to default value 5000000.0
+2024-08-06 11:26:41,503 INFO: Setting attribute max_t7 to default value 1873
+2024-08-06 11:26:41,503 INFO: Setting attribute max_t3 to default value 893
+2024-08-06 11:26:41,503 INFO: Setting attribute min_x4 to default value 0.9
+2024-08-06 11:26:41,503 INFO: Setting attribute max_p_hrsg_steam to default value 20265000
+2024-08-06 11:26:41,503 INFO: Setting attribute min_p_cond to default value 618.0825000000001
+2024-08-06 11:26:44,178 WARNING: findfont: Font family ['cursive'] not found. Falling back to DejaVu Sans.
+2024-08-06 11:26:44,178 WARNING: findfont: Generic family 'cursive' not found because none of the following families were found: TeX Gyre Chorus, Apple Chancery, Felipa, Sand, Script MT, Textile, Zapf Chancery, cursive
+2024-08-06 11:29:24,592 INFO: Setting attribute p_5 to default value 101325
+2024-08-06 11:29:24,592 INFO: Setting attribute T_5 to default value 293.15
+2024-08-06 11:29:24,592 INFO: Setting attribute p_1 to default value 4053.0
+2024-08-06 11:29:24,592 INFO: Setting attribute T_1 to default value 297.9
+2024-08-06 11:29:24,592 INFO: Setting attribute gas_fluid to default value air
+2024-08-06 11:29:24,592 INFO: Setting attribute m_dot_gas to default value 1055.9
+2024-08-06 11:29:24,592 INFO: Setting attribute steam_fluid to default value water
+2024-08-06 11:29:24,592 INFO: Setting attribute m_dot_steam to default value 150.3
+2024-08-06 11:29:24,592 INFO: Setting attribute Q_67 to default value 1045300000.0
+2024-08-06 11:29:24,592 INFO: Setting attribute r_p_comp to default value 23
+2024-08-06 11:29:24,592 INFO: Setting attribute r_p_turb to default value 20.9186
+2024-08-06 11:29:24,592 INFO: Setting attribute r_p_pump to default value 1000
+2024-08-06 11:29:24,592 INFO: Setting attribute n_c_gas to default value 0.85
+2024-08-06 11:29:24,592 INFO: Setting attribute n_t_gas to default value 0.85
+2024-08-06 11:29:24,592 INFO: Setting attribute n_c_steam to default value 0.85
+2024-08-06 11:29:24,592 INFO: Setting attribute n_t_steam to default value 0.85
+2024-08-06 11:29:24,592 INFO: Setting attribute hrsg_f to default value 1.0
+2024-08-06 11:29:24,592 INFO: Setting attribute hrsg_ua to default value 5000000.0
+2024-08-06 11:29:24,592 INFO: Setting attribute max_t7 to default value 1873
+2024-08-06 11:29:24,592 INFO: Setting attribute max_t3 to default value 893
+2024-08-06 11:29:24,593 INFO: Setting attribute min_x4 to default value 0.9
+2024-08-06 11:29:24,593 INFO: Setting attribute max_p_hrsg_steam to default value 20265000
+2024-08-06 11:29:24,593 INFO: Setting attribute min_p_cond to default value 618.0825000000001
+2024-08-06 11:29:26,762 WARNING: findfont: Font family ['cursive'] not found. Falling back to DejaVu Sans.
+2024-08-06 11:29:26,762 WARNING: findfont: Generic family 'cursive' not found because none of the following families were found: TeX Gyre Chorus, Apple Chancery, Felipa, Sand, Script MT, Textile, Zapf Chancery, cursive
+2024-08-06 15:57:59,055 INFO: Setting attribute p_5 to default value 101325
+2024-08-06 15:57:59,056 INFO: Setting attribute T_5 to default value 293.15
+2024-08-06 15:57:59,056 INFO: Setting attribute p_1 to default value 4053.0
+2024-08-06 15:57:59,056 INFO: Setting attribute T_1 to default value 297.9
+2024-08-06 15:57:59,056 INFO: Setting attribute gas_fluid to default value air
+2024-08-06 15:57:59,056 INFO: Setting attribute m_dot_gas to default value 1055.9
+2024-08-06 15:57:59,056 INFO: Setting attribute steam_fluid to default value water
+2024-08-06 15:57:59,056 INFO: Setting attribute m_dot_steam to default value 150.3
+2024-08-06 15:57:59,056 INFO: Setting attribute Q_67 to default value 1045300000.0
+2024-08-06 15:57:59,056 INFO: Setting attribute r_p_comp to default value 23
+2024-08-06 15:57:59,056 INFO: Setting attribute r_p_turb to default value 20.9186
+2024-08-06 15:57:59,056 INFO: Setting attribute r_p_pump to default value 1000
+2024-08-06 15:57:59,056 INFO: Setting attribute n_c_gas to default value 0.85
+2024-08-06 15:57:59,056 INFO: Setting attribute n_t_gas to default value 0.85
+2024-08-06 15:57:59,056 INFO: Setting attribute n_c_steam to default value 0.85
+2024-08-06 15:57:59,057 INFO: Setting attribute n_t_steam to default value 0.85
+2024-08-06 15:57:59,057 INFO: Setting attribute hrsg_f to default value 1.0
+2024-08-06 15:57:59,057 INFO: Setting attribute hrsg_ua to default value 5000000.0
+2024-08-06 15:57:59,057 INFO: Setting attribute max_t7 to default value 1873
+2024-08-06 15:57:59,057 INFO: Setting attribute max_t3 to default value 893
+2024-08-06 15:57:59,057 INFO: Setting attribute min_x4 to default value 0.9
+2024-08-06 15:57:59,057 INFO: Setting attribute max_p_hrsg_steam to default value 20265000
+2024-08-06 15:57:59,057 INFO: Setting attribute min_p_cond to default value 618.0825000000001
+2024-08-06 15:58:02,911 WARNING: findfont: Font family ['cursive'] not found. Falling back to DejaVu Sans.
+2024-08-06 15:58:02,911 WARNING: findfont: Generic family 'cursive' not found because none of the following families were found: TeX Gyre Chorus, Apple Chancery, Felipa, Sand, Script MT, Textile, Zapf Chancery, cursive

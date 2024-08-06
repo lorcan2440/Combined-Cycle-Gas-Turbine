@@ -50,7 +50,7 @@ class CombinedCycleGasTurbine:
     _DEF_N_C_STEAM = 0.85
     _DEF_N_T_STEAM = 0.85
     _DEF_HRSG_F = 1.0
-    _DEF_HRSG_UA = 8.572e6
+    _DEF_HRSG_UA = 5e6 #8.572e6
     # process limits
     _DEF_MAX_T7 = 1600 + 273  # maximum gas turbine inlet temperature (1600 C)
     _DEF_MAX_T3 = 620 + 273  # maximum steam turbine inlet temperature (620 C)
