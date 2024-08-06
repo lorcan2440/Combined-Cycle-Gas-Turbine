@@ -12,6 +12,7 @@ CoolProp is used to model accurate fluid properties at varying temperatures, pre
 
 ![image](Figures/Fig1_energy_exergy_balances.svg)
 ![image](Figures/Fig2_TS_diagrams.svg)
+![image](Figures/Fig3_HRSG_pinch_point.svg)
 
 ## Features
 
