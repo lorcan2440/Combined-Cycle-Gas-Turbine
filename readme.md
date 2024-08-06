@@ -21,16 +21,20 @@ Done:
 - [x] Compute efficiencies and show energy and exergy balances
 - [x] Show the system on a T-s diagram
 - [x] Calculate from the F-factor and overall heat transfer coefficient of the HRSG
+- [x] Show the T-x diagram of the heat exchanger, compute pinch point, compute effectiveness
 
 To do:
 
-- [ ] Show the T-x diagram of the heat exchanger, compute pinch point, compute effectiveness
-- [ ] Warn the user if the turbine temperatures are too high (risks blade creep), or if condenser pressure is too low (risks ice formation), or if the steam turbine wetness is too high (risks blade erosion)
+- [ ] Warn the user about turbine inlet temperatures, supercritical states, 
+- sub-triple point states, wet steam turbine outlets.
 - [ ] Account for fuel in the gas cycle, model the combustion accurately
 - [ ] Show the energy and exergy flows as a Sankey diagram instead of a pie chart
-- [ ] Allow reheat stages in the gas and/or steam cycle
-- [ ] Allow recuperation from the gas exhaust
-- [ ] Allow a solid oxide fuel cell (SOFC) in the gas cycle
+- [ ] Add reheat stages in the gas and/or steam cycle
+- [ ] Add recuperation from the gas exhaust
+- [ ] Add a solid oxide cell (electrolysis and fuel cell)
+- [ ] Add a heat output as a combined heat and power (CHP) scheme
+- [ ] Add a CO2 capture and storage (CCS) scheme
+- [ ] Add a three-phase AC generator at the turbine shaft
 
 #### Ambitious end goal
 

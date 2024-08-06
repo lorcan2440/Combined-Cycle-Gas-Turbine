@@ -4,6 +4,7 @@ import CoolProp as CP
 from CoolProp.CoolProp import PropsSI
 from CoolPlot.Plot import PropertyPlot
 from scipy.optimize import fsolve
+from scipy.interpolate import interp1d
 
 import warnings
 import re
@@ -30,7 +31,7 @@ class CombinedCycleGasTurbine:
 
     # operating points
     _DEF_P_5 = 101325
-    _DEF_T_5 = 298.
+    _DEF_T_5 = 273.15 + 20
     _DEF_P_1 = 0.04 * 101325
     _DEF_T_1 = 297.9
     # fluids
@@ -47,9 +48,15 @@ class CombinedCycleGasTurbine:
     _DEF_N_C_GAS = 0.85
     _DEF_N_T_GAS = 0.85
     _DEF_N_C_STEAM = 0.85
-    _DEF_N_T_STEAM = 0.8
+    _DEF_N_T_STEAM = 0.85
     _DEF_HRSG_F = 1.0
-    _DEF_HRSG_UA = 7.5759535e6
+    _DEF_HRSG_UA = 8.572e6
+    # process limits
+    _DEF_MAX_T7 = 1600 + 273  # maximum gas turbine inlet temperature (1600 C)
+    _DEF_MAX_T3 = 620 + 273  # maximum steam turbine inlet temperature (620 C)
+    _DEF_MIN_X4 = 0.90  # minimum dryness fraction at point 4
+    _DEF_MAX_P_HRSG_STEAM = 200 * 101325  # maximum steam pressure in HRSG
+    _DEF_MIN_P_COND = 0.0061 * 101325  # minimum condenser pressure
 
     def attrs_from_kwargs_or_default(self, **kwargs: dict) -> None:
         """
@@ -117,6 +124,9 @@ class CombinedCycleGasTurbine:
         - `hrsg_f` (float, default = 1.0): the F-factor of the HRSG heat exchanger
         - `hrsg_ua` (float, default = 7.5759535e6): the overall heat transfer coefficient
         times surface area of the HRSG, in W/K
+        #### Process limits
+        - `max_T7` (float, default = 1873): the maximum gas turbine inlet temperature, in K
+        - `max_T3` (float, default = 893): the maximum steam turbine inlet temperature, in K
         """
         self.attrs_from_kwargs_or_default(**kwargs)
 
@@ -237,6 +247,33 @@ class CombinedCycleGasTurbine:
 
         # calculate condenser heat transfer
         self.Q_14 = self.m_dot_steam * (self.h_4 - self.h_1)
+
+        # check for process limits
+        if self.T_7 > self.max_t7:
+            logging.warning(
+                f"Gas turbine inlet temperature {self.T_7} K exceeds maximum safe limit {self.max_t7} K."
+                " The gas turbine blades are at risk of accelerated creep and thermal damage."
+            )
+        if self.T_3 > self.max_t3:
+            logging.warning(
+                f"Steam turbine inlet temperature {self.T_3} K exceeds maximum safe limit {self.max_t3} K."
+                " The steam turbine blades are at risk of accelerated creep and thermal damage."
+            )
+        if self.x_4 < self.min_x4:
+            logging.warning(
+                f"Steam turbine outlet dryness fraction {self.x_4} is below the minimum safe limit {self.min_x4}."
+                " The steam turbine blades are at risk of erosion and damage from liquid droplets."
+            )
+        if self.p_3 > self.max_p_hrsg_steam:
+            logging.warning(
+                f"Steam pressure in HRSG {self.p_3} Pa exceeds maximum safe limit {self.max_p_hrsg_steam} Pa."
+                " The steam cycle is at risk of entering the supercritical state."
+            )
+        if self.p_4 < self.min_p_cond:
+            logging.warning(
+                f"Condenser pressure {self.p_4} Pa is below the minimum safe limit {self.min_p_cond} Pa."
+                " The condenser is at risk of ice crystal formation."
+            )
 
     def calc_energy_exergy_balances(self):
 
@@ -608,7 +645,56 @@ class CombinedCycleGasTurbine:
         fig.savefig("Figures/Fig2_TS_diagrams.svg", dpi=300)
         plt.show()
 
+    def calc_hrsg_pinch_point(self):
+        '''
+        Shows a T-X diagram of the HRSG, showing the temperature across both sides of the
+        heat exchanger as a function of the proportion of heat transferred. The pinch point
+        is calculated as the point at which the temperature difference between the two sides
+        is minimum.
 
+        Calculates the attributes:
+
+        - `T_pinch`: pinch point temperature difference, in K
+        - `h_sat_wet`: enthalpy of saturated steam at the economiser outlet (evaporator inlet), in J/kg
+        - `h_sat_dry`: enthalpy of dry steam at the evaporator outlet (superheater inlet), in J/kg
+        '''
+
+        fig, ax = plt.subplots(figsize=(6, 6))
+
+        # draw the gas side
+        ax.plot([0, 1], [self.T_9, self.T_8], "r", label="Gas (flipped)")
+        ax.annotate("9", (0, self.T_9), textcoords="offset points", xytext=(-10, 0), ha="center")
+        ax.annotate("8", (1, self.T_8), textcoords="offset points", xytext=(10, 0), ha="center")
+
+        # draw the steam side
+        x_steam = lambda h_steam: (h_steam - self.h_2) / (self.h_3 - self.h_2)
+        T_sat = PropsSI("T", "P", self.p_2, "Q", 0, self.steam_fluid)
+        self.h_sat_wet = PropsSI("H", "P", self.p_2, "Q", 0, self.steam_fluid)
+        self.h_sat_dry = PropsSI("H", "P", self.p_2, "Q", 1, self.steam_fluid)
+        x_wet = x_steam(self.h_sat_wet)
+        x_dry = x_steam(self.h_sat_dry)
+        ax.plot([0, x_wet, x_dry, 1], [self.T_2, T_sat, T_sat, self.T_3], "b", label="Steam")
+        ax.annotate("2", (0, self.T_2), textcoords="offset points", xytext=(-10, 0), ha="center")
+        ax.annotate("3", (1, self.T_3), textcoords="offset points", xytext=(10, 0), ha="center")
+
+        # calculate pinch point
+        dT_wet = np.interp(x_wet, [0, 1], [self.T_9, self.T_8]) - T_sat
+        if self.dT_hot_hrsg < dT_wet:
+            self.T_pinch = self.dT_hot_hrsg
+            ax.plot([1, 1], [self.T_3, self.T_8], 'g', alpha=0.5, label=f'Pinch point: {self.T_pinch:.2f} K')
+        else:
+            self.T_pinch = dT_wet
+            ax.plot([x_wet, x_wet], [T_sat, T_sat + dT_wet], 'g', alpha=0.5, label=f'Pinch point: {self.T_pinch:.2f} K')
+
+        ax.set_xlabel("Proportion of heat transferred, X")
+        ax.set_ylabel("Temperature T, K")
+        ax.legend()
+        ax.set_title("HRSG T-X diagram")
+
+        fig.tight_layout()
+        fig.savefig("Figures/Fig3_HRSG_pinch_point.svg", dpi=300)
+        plt.show()
+        
     def specific_exergy_at_point(
         self, n: int, p_0: float = 101325, T_0: float = 298.15
     ) -> float:
@@ -706,10 +792,10 @@ class CombinedCycleGasTurbine:
         except AttributeError:
             return "Model has not been computed yet. Run `calc_states()` and `calc_energy_exergy_balances()` first."
 
-
 ccgt = CombinedCycleGasTurbine()
 
 ccgt.calc_states()
 ccgt.calc_energy_exergy_balances()
 ccgt.plot_Ts_diagram()
+ccgt.calc_hrsg_pinch_point()
 print(ccgt)
